@@ -1,5 +1,6 @@
 package az.orient.bankdemo;
 
+import az.orient.bankdemo.schedule.MyThread;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -15,6 +16,8 @@ public class BankdemoApplication  extends SpringBootServletInitializer {
 
     public static void main(String[] args) {
         SpringApplication.run(BankdemoApplication.class, args);
+        MyThread myThread = new MyThread();
+        myThread.start();
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         System.out.println(passwordEncoder.encode("fuad123"));
         System.out.println(passwordEncoder.encode("test123"));

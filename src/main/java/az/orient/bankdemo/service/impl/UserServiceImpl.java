@@ -15,6 +15,8 @@ import az.orient.bankdemo.repository.UserTokenRepository;
 import az.orient.bankdemo.service.UserService;
 import az.orient.bankdemo.util.Utility;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -29,10 +31,13 @@ public class UserServiceImpl implements UserService {
 
     private final Utility utility;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
+
     @Override
     public Response<RespUser> login(ReqUser reqUser) {
         Response<RespUser> response = new Response<>();
         try {
+            LOGGER.info("login request: "+reqUser);
             String username = reqUser.getUsername();
             String password = reqUser.getPassword();
             User user = userRepository.findUserByUsernameAndPasswordAndActive(username,password, EnumAvailableStatus.ACTIVE.getValue());
@@ -52,8 +57,9 @@ public class UserServiceImpl implements UserService {
             respUser.setFullName(user.getFullName());
             response.setT(respUser);
             response.setStatus(RespStatus.getSuccessMessage());
+            LOGGER.info("login response: "+response);
         } catch (BankException ex) {
-            ex.printStackTrace();
+            LOGGER.error("login error: ",ex);
             response.setStatus(new RespStatus(ex.getCode(), ex.getMessage()));
         } catch (Exception ex) {
             ex.printStackTrace();

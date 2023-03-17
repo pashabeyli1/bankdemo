@@ -4,7 +4,10 @@ import az.orient.bankdemo.dto.request.AuthRequest;
 import az.orient.bankdemo.dto.response.AuthResponse;
 import az.orient.bankdemo.jwt.JwtTokenUtil;
 import az.orient.bankdemo.security.MyUserDetails;
+import az.orient.bankdemo.service.impl.UserServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -25,9 +28,12 @@ public class AuthController {
 
     private final JwtTokenUtil jwtUtil;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(AuthController.class);
+
     @PostMapping("/auth/login")
     public ResponseEntity<?> login(@RequestBody @Valid AuthRequest request) {
         try {
+            LOGGER.info("/auth/login request: "+request);
             Authentication authentication = authManager.authenticate(new UsernamePasswordAuthenticationToken(
                     request.getEmail(), request.getPassword()));
 
@@ -35,11 +41,12 @@ public class AuthController {
             String accessToken = jwtUtil.generateAccessToken(user);
 
             AuthResponse response = new AuthResponse(user.getUsername(), accessToken);
-
+            LOGGER.info("/auth/login response: "+response);
 
             return ResponseEntity.ok().body(response);
 
         } catch (BadCredentialsException ex) {
+            LOGGER.error("/auth/login error: ",ex);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }

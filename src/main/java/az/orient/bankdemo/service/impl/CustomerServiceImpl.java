@@ -14,6 +14,8 @@ import az.orient.bankdemo.repository.CustomerRepository;
 import az.orient.bankdemo.service.CustomerService;
 import az.orient.bankdemo.util.Utility;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.text.DateFormat;
@@ -32,11 +34,14 @@ public class CustomerServiceImpl implements CustomerService {
 
     DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
+
 
     @Override
     public Response<List<RespCustomer>> getCustomerList(TokenDto tokenDto) {
         Response<List<RespCustomer>> response = new Response<>();
         try {
+            LOGGER.info("getCustomerList request: "+tokenDto);
             utility.checkToken(tokenDto);
             List<Customer> customerList = customerRepository.findAllByActive(EnumAvailableStatus.ACTIVE.getValue());
             if (customerList.isEmpty()) {
@@ -45,11 +50,12 @@ public class CustomerServiceImpl implements CustomerService {
             List<RespCustomer> respCustomerList = customerList.stream().map(this::convert).collect(Collectors.toList());
             response.setT(respCustomerList);
             response.setStatus(RespStatus.getSuccessMessage());
+            LOGGER.info("getCustomerList response: "+response);
         } catch (BankException ex) {
-            ex.printStackTrace();
+            LOGGER.error("getCustomerList error: ",ex);
             response.setStatus(new RespStatus(ex.getCode(), ex.getMessage()));
         } catch (Exception ex) {
-            ex.printStackTrace();
+            LOGGER.error("getCustomerList internal error: ",ex);
             response.setStatus(new RespStatus(ExceptionConstants.INTERNAL_EXCEPTION, "Internal Exception"));
         }
         return response;
